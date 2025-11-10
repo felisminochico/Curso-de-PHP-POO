@@ -57,11 +57,29 @@
 
         $p1->enviarMensagem($r1, $p2, "Teste");
         $p2->criarConta($r1);
-        $p1->enviarMensagem($r1, $p2, "Teste");
-        $p1->consultarMensagens($r1);
+        $p1->enviarMensagem($r1, $p2, "Boa Tarde");
+
         $p2->consultarMensagens($r1);
+        $p1->consultarMensagens($r1);   
+        // $p3->consultarMensagens($r1);
         $p3->criarConta($r1);
+        $p3->enviarMensagem($r1, $p2, "Sou Odes, Maria!");
+        $p2->consultarMensagens($r1);
         $p3->consultarMensagens($r1);
+
+        $r1->detalhesRedeSocial();
+
+        $p1->criarConta($r2);
+        $p3->enviarMensagem($r1, $p1, "Qualé, Wey?");
+        $p1->consultarMensagens($r1);
+        $p2->enviarMensagem($r2, $p1, "Tás bem, Mino?");
+        $p1->consultarMensagens($r2);
+        $p3->criarConta($r2);
+        $p3->consultarMensagens($r2);
+        $p1->enviarMensagem($r2, $p3, "Nengue Odes");
+        $p3->consultarMensagens($r2);
+        $p1->enviarMensagem($r1, $p2, "De novo");
+        $p2->consultarMensagens($r1);
     ?>
 </body>
 </html>

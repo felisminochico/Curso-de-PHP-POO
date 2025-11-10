@@ -1,5 +1,6 @@
  <?php 
     require_once "./ControleRedeSocial2.php";
+    require_once "./ContaRedeSocial.php";
 
     class Pessoa implements ControleRedeSocial2{
         private string $nome;
@@ -44,7 +45,7 @@
             return $this->contas;
         }
 
-        public function setContas(RedeSocial $contas): void{
+        public function setContas(ContaRedeSocial $contas): void{
             array_push($this->contas, $contas);
         }
 
@@ -75,13 +76,13 @@
 
         public function criarConta(RedeSocial $redeSocial){
             foreach($this->getContas() as $conta){
-                if($conta === $redeSocial){
+                if($conta->getNomeRedeSocial() === $redeSocial->getNome()){
                     echo("<p><strong>ERRO:</strong> {$this->getNome()} já tem uma conta na Plataforma {$redeSocial->getNome()}.</p>");
                     return;
                 }
             }
 
-            $this->setContas($redeSocial);
+            $this->setContas(new ContaRedeSocial($redeSocial->getNome()));
             $redeSocial->novoUsuario($this);
             $this->setTemConta(true);
             echo("<p>Conta {$this->getNome()} na Plataforma {$redeSocial->getNome()} criada com sucesso!</p>");
@@ -109,10 +110,9 @@
                 echo("<table><caption>Contas de {$this->getNome()}</caption>");
                 echo("<tbody>");
                 echo("<tr><th>ID</th> <th>Plataforma</th>");
-                $c = 1;
-                foreach($this->getContas() as $conta){
-                    echo("<tr><td>$c</td> <td>{$conta->getNome()}</td></tr>");
-                    $c++;
+
+                for($c = 0; $c < count($this->getContas()); $c++){
+                    echo("<tr><td>$c</td> <td>{$this->getContas()[$c]->getNomeRedeSocial()}</td></tr>");
                 }
                 echo("</tbody></table>");
             }
@@ -120,53 +120,45 @@
 
         public function enviarMensagem(RedeSocial $redeSocial, Pessoa $pessoa, string $mensagem){
             if($this->getTemConta()){
-                echo("Você tem Conta.<br>");
                 if($pessoa->getTemConta()){
-                    echo("Ele ou Ela tem Conta.<br>");
-                    foreach($this->getContas() as $conta){
-                        foreach($pessoa->getContas() as $conta2){
-                            if($conta == $redeSocial && $conta2 == $redeSocial){
-                                $pessoa->getContas()[array_search($redeSocial, $pessoa->getContas())]->setMensagens($mensagem);
-                                $pessoa->getContas()[array_search($redeSocial, $pessoa->getContas())]->setEnviadores($this->getNome());
-                                echo("<p>Mensagem para {$pessoa->getNome()} enviada com sucesso!</p>");
+                    for($c = 0; $c < count($this->getContas()); $c++){
+                        for($c2 = 0; $c2 < count($pessoa->getContas()); $c2++){
+                            if($this->getContas()[$c]->getNomeRedeSocial() == $redeSocial->getNome() && $pessoa->getContas()[$c2]->getNomeRedeSocial() == $redeSocial->getNome()){
+                                $pessoa->getContas()[$c2]->setMensagens($mensagem);
+                                $pessoa->getContas()[$c2]->setEnviadores($this->getNome());
+                                echo("<p>Mensagem de {$this->getNome()} para {$pessoa->getNome()} enviada com sucesso!</p>");
                                 return;
                             }
                         }
-                        // if($conta == $redeSocial){
-                        //     echo("Você tem Conta nessa Rede.<br>");
-                             
-                        //     foreach($pessoa->getContas() as $conta2){
-                        //         if($conta2 == $redeSocial){
-                        //             echo("Ele ou Ela tem Conta nessa Rede.<br>");
-                                    
-                        //         }else{
-                        //             echo("<p><strong>ERRO:</strong> {$pessoa->getNome()} não tem uma conta na Plataforma {$redeSocial->getNome()}</p>");
-                        //             return;
-                        //         }
-                        //     }
-                        // }else{
-                        //     echo("<p><strong>ERRO:</strong> Você não tem uma conta na Plataforma {$redeSocial->getNome()}</p>");
-                        //     return;
-                        // }
-                    }
+                    }       
                 }else{
-                    echo("<p><strong>ERRO:</strong> {$pessoa->getNome()} ainda não tem uma Conta.</p>");
+                    echo ("<p><strong>ERRO:</strong> O Receptor {$this->getNome()} não tem uma Conta ainda.</p>");
+                    return;    
                 }
             }else{
-                echo("<p><strong>ERRO:</strong> Você não tem uma Conta.</p>");
+                // echo("<p><strong>ERRO:</strong> {$this->getNome()} não tem uma conta na Plataforma {$redeSocial->getNome()}.</p>");
+                echo ("<p><strong>ERRO:</strong> O Enviador {$this->getNome()} não tem uma Conta ainda.</p>");
             }
         }
 
         public function consultarMensagens(RedeSocial $redeSocial){
-            echo("<table><caption>Mensagens de {$this->getNome()}</caption>");
-            echo("<tbody>");
-            echo("<tr><th>Nome</th> <th>Mensagem</th></tr>");
-            $c = 0;
-            foreach($this->getContas()[array_search($redeSocial, $this->getContas())]->getMensagens() as $mensagem){
-                echo("<tr><td>{$this->getContas()[array_search($redeSocial, $this->getContas())]->getEnviadores()[$c]}</td> <td>$mensagem</td></tr>");
-                $c++;
+            foreach($this->getContas() as $conta){
+                if($conta->getNomeRedeSocial() == $redeSocial->getNome()){
+                    echo("<table><caption>Mensagens de {$this->getNome()}</caption>");
+                    echo("<tbody>");
+                    echo("<tr><th>Nome</th> <th>Mensagem</th> <th>Plataforma</th></tr>");
+                    for($c = 0; $c < count($this->getContas()); $c++){
+                        if($this->getContas()[$c]->getNomeRedeSocial() == $redeSocial->getNome()){
+                            for($c2 = 0; $c2 < count($this->getContas()[$c]->getMensagens()); $c2++){
+                                echo("<tr><td>{$this->getContas()[$c]->getEnviadores()[$c2]}</td> <td>{$this->getContas()[$c]->getMensagens()[$c2]}</td> <td>{$this->getContas()[$c]->getNomeRedeSocial()}</td></tr>");
+                            }
+                            echo("</tbody></table>");
+                            return;
+                        }
+                    }
+                }
             }
-            echo("</tbody></table>");
+            echo("<p><strong>ERRO:</strong> {$this->getNome()} não tem uma Conta na Plataforma {$redeSocial->getNome()}");
         }
     }
 ?>

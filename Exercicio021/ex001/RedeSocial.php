@@ -4,8 +4,6 @@
     class RedeSocial{
         private string $nome;
         private array $usuarios = [];
-        private array $mensagens = [];
-        private array $enviadores = [];
 
         public function __construct(string $nome){
             $this->setNome($nome);   
@@ -25,22 +23,6 @@
 
         public function setUsuarios(string $nome): void{
             array_push($this->usuarios, $nome);
-        }
-
-        public function getMensagens(): array{
-            return $this->mensagens;
-        }
-
-        public function setMensagens(string $mensagem): void{
-            array_push($this->mensagens, $mensagem);
-        }
-
-        public function getEnviadores(): array{
-            return $this->enviadores;
-        }
-
-        public function setEnviadores(string $nome): void{
-            array_push($this->enviadores, $nome);
         }
 
         public function novoUsuario(Pessoa $pessoa){
